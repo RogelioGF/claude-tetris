@@ -1,0 +1,138 @@
+name: Triaje de Issues
+
+on:
+  issues:
+    types: [opened, edited]
+
+concurrency:
+  group: triage-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Sincronizar labels desde .github/labels.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          count=$(yq '. | length' .github/labels.yml)
+          for i in $(seq 0 $((count - 1))); do
+            name=$(yq -r ".[$i].name" .github/labels.yml)
+            color=$(yq -r ".[$i].color" .github/labels.yml)
+            description=$(yq -r ".[$i].description" .github/labels.yml)
+            gh label create "$name" --color "$color" --description "$description" --force
+          done
+
+  triage:
+    needs: sync-labels
+    if: |
+      !contains(github.event.issue.body, '@claude') &&
+      !contains(github.event.issue.title, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Issue Triage
+        id: triage
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          prompt: |
+            REPO: ${{ github.repository }}
+            ISSUE: ${{ github.event.issue.number }}
+            TÍTULO: ${{ github.event.issue.title }}
+            CUERPO:
+            ${{ github.event.issue.body }}
+            AUTOR: ${{ github.event.issue.user.login }}
+            EVENTO: ${{ github.event.action }}
+
+            Eres un asistente de triaje para este repositorio (un Tetris en
+            JavaScript vanilla con Canvas, sin dependencias ni build). Analiza
+            el issue de arriba y prepara el terreno para que alguien pueda
+            implementar la solución después.
+
+            Antes de opinar, lee el código relevante: `game.js` (contiene
+            todo el estado y la lógica en un único scope global — bucle de
+            juego, colisiones, rotación, piezas, puntuación y render),
+            `index.html`, `style.css` y `CLAUDE.md` (arquitectura general).
+            No diagnostiques solo a partir del título.
+
+            Si el cuerpo del issue incluye imágenes (`<img>` o markdown de
+            imagen), no puedes verlas: dilo explícitamente en "Riesgos /
+            dudas" y basa el análisis solo en el texto y el código.
+
+            Pasos:
+
+            1. Determina el tipo de issue, su prioridad y complejidad, y qué
+               área(s) del juego afecta.
+            2. Elige labels EXCLUSIVAMENTE del catálogo existente en el repo
+               (verifícalo con `gh label list`, sincronizado desde
+               `.github/labels.yml`): exactamente una `tipo: *`, una o más
+               `area: *`, exactamente una `prioridad: *` y una
+               `complejidad: *`. No inventes ni crees labels nuevas.
+            3. Aplica las labels elegidas con
+               `gh issue edit ${{ github.event.issue.number }} --add-label "..."`.
+               Si este es un evento de edición y el issue ya tenía labels de
+               este mismo catálogo que ya no aplican, quítalas con
+               `--remove-label` para que el estado final refleje tu análisis
+               actual (no acumules labels obsoletas).
+            4. Busca posibles duplicados con `gh search issues` dentro de
+               este repo. Si encuentras alguno claro, menciónalo en el
+               diagnóstico.
+            5. Publica (o actualiza) un único comentario de diagnóstico en
+               español con este formato exacto, incluyendo el marcador HTML
+               al principio:
+
+               ```
+               <!-- claude-triage -->
+               ## 🔍 Análisis automático
+
+               **Resumen:** ...
+               **Causa probable:** fichero:línea + función concreta (si aplica)
+               **Ficheros a tocar:** ...
+               **Enfoque sugerido:** ...
+               **Criterios de aceptación:**
+               - [ ] ...
+               **Riesgos / dudas:** ...
+               **Labels aplicadas:** ...
+               ```
+
+               Antes de publicar, comprueba si ya existe un comentario con el
+               marcador `<!-- claude-triage -->` usando
+               `gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments --jq '.[] | select(.body | contains("<!-- claude-triage -->")) | .id'`.
+               Si existe, actualízalo con
+               `gh api --method PATCH repos/${{ github.repository }}/issues/comments/<id> -f body=@archivo`
+               en vez de crear uno nuevo. Si no existe, créalo con
+               `gh issue comment ${{ github.event.issue.number }} --body-file archivo`.
+
+            Restricciones importantes:
+            - Responde siempre en español.
+            - No edites el título ni el cuerpo del issue (evita re-disparar
+              este mismo workflow).
+            - No cierres el issue, no crees ramas ni pull requests. Tu
+              trabajo es analizar y etiquetar, no implementar la solución.
+            - Si el issue es ambiguo o le falta información (frecuente aquí:
+              descripciones de una línea), dilo en "Riesgos / dudas" y pide
+              lo que falte en vez de inventar una causa.
+
+          claude_args: |
+            --allowedTools "Read,Grep,Glob,Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*),Bash(gh search issues:*),Bash(gh api:*)"

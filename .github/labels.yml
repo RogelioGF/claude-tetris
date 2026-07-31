@@ -1,0 +1,52 @@
+# Catálogo cerrado de labels del proyecto.
+# Fuente de la verdad sincronizada por el job `sync-labels` de
+# .github/workflows/issue-triage.yml (gh label create --force).
+#
+# Ejes: tipo (1), area (1+), prioridad (1), complejidad (1).
+# Claude solo debe usar labels de este catálogo al triar issues.
+
+- name: 'tipo: bug'
+  color: 'd73a4a'
+  description: 'Algo no funciona como se espera'
+- name: 'tipo: mejora'
+  color: 'a2eeef'
+  description: 'Cambio o ampliación sobre algo que ya funciona'
+- name: 'tipo: docs'
+  color: '0075ca'
+  description: 'Cambios en README.md, CLAUDE.md u otra documentación'
+
+- name: 'area: jugabilidad'
+  color: 'c2e0c6'
+  description: 'Bucle de juego, colisiones, rotación, bloqueo de piezas, líneas'
+- name: 'area: render'
+  color: 'c5def5'
+  description: 'Dibujado en canvas, colores, pieza fantasma, preview'
+- name: 'area: ui'
+  color: 'bfd4f2'
+  description: 'HTML/CSS: HUD, overlay, layout general'
+- name: 'area: controles'
+  color: 'd4c5f9'
+  description: 'Teclado / entrada del jugador'
+- name: 'area: puntuacion'
+  color: 'fef2c0'
+  description: 'Puntuación, líneas, niveles y velocidad de caída'
+
+- name: 'prioridad: alta'
+  color: 'b60205'
+  description: 'Bloquea o rompe la experiencia de juego'
+- name: 'prioridad: media'
+  color: 'e99695'
+  description: 'Afecta al juego pero tiene alternativa o workaround'
+- name: 'prioridad: baja'
+  color: 'f9d0c4'
+  description: 'Detalle menor o cosmético'
+
+- name: 'complejidad: baja'
+  color: 'c2e0c6'
+  description: 'Cambio pequeño y localizado (una función o pocas líneas)'
+- name: 'complejidad: media'
+  color: 'fbca04'
+  description: 'Toca varias funciones o requiere pruebas manuales cuidadosas'
+- name: 'complejidad: alta'
+  color: 'e4a83c'
+  description: 'Cambio estructural o que afecta a varias capas del juego'
