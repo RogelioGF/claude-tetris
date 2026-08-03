@@ -25,8 +25,8 @@ The whole project is three files with no module system — everything in `game.j
 - **`style.css`** — dark/retro arcade visual theme only.
 - **`game.js`** — all game logic, roughly in these layers:
   - **State**: module-level `let` variables (`board`, `current`, `next`, `score`, `lines`, `level`, `paused`, `gameOver`, `dropInterval`, ...) — no state container/class, just globals mutated by functions.
-  - **Board model**: `ROWS × COLS` matrix where each cell is `0` (empty) or a color index `1–7` identifying which piece locked there.
-  - **Pieces**: the 7 tetrominoes as square matrices in `PIECES`; rotation is `rotateCW` (transpose + reverse), and `tryRotate` applies wall-kick offsets `[0, -1, 1, -2, 2]` on the x-axis until a non-colliding position is found.
+  - **Board model**: `ROWS × COLS` matrix where each cell is `0` (empty) or a color index `1–8` identifying which piece locked there.
+  - **Pieces**: the 7 tetrominoes plus one pentomino (a 5-block cross/plus shape) as square matrices in `PIECES`; rotation is `rotateCW` (transpose + reverse), and `tryRotate` applies wall-kick offsets `[0, -1, 1, -2, 2]` on the x-axis until a non-colliding position is found.
   - **Collision**: `collide(shape, ox, oy)` is the single source of truth, used for movement, rotation, ghost-piece projection, and spawn checks alike.
   - **Game loop**: `loop(ts)` runs via `requestAnimationFrame`, accumulates elapsed time in `dropAccum`, and advances the piece one row (or locks it) once `dropAccum >= dropInterval`.
   - **Locking/scoring**: `lockPiece()` → `merge()` writes the piece into `board`, then `clearLines()` sweeps bottom-up, removing full rows and unshifting empty ones, scoring via `LINE_SCORES` (`[0,100,300,500,800]`) × `level`. Level increases every 10 lines and recomputes `dropInterval = max(100, 1000 - (level-1)*90)`.
