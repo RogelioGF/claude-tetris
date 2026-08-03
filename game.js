@@ -29,6 +29,7 @@ const PIECES = [
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
+const MAX_COMBO_MULTIPLIER = 5;
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -42,10 +43,12 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggleBtn = document.getElementById('theme-toggle');
+const comboEl = document.getElementById('combo');
 
 const THEME_KEY = 'tetris-theme';
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let comboCount, comboMultiplier;
 let gridLineColor;
 
 function createBoard() {
@@ -99,6 +102,11 @@ function merge() {
         board[current.y + r][current.x + c] = current.shape[r][c];
 }
 
+function updateCombo(cleared) {
+  comboCount = cleared > 0 ? comboCount + 1 : 0;
+  comboMultiplier = comboCount > 0 ? Math.min(comboCount, MAX_COMBO_MULTIPLIER) : 1;
+}
+
 function clearLines() {
   let cleared = 0;
   for (let r = ROWS - 1; r >= 0; r--) {
@@ -109,13 +117,14 @@ function clearLines() {
       r++;
     }
   }
+  updateCombo(cleared);
   if (cleared) {
     lines += cleared;
-    score += (LINE_SCORES[cleared] || 0) * level;
+    score += (LINE_SCORES[cleared] || 0) * level * comboMultiplier;
     level = Math.floor(lines / 10) + 1;
     dropInterval = Math.max(100, 1000 - (level - 1) * 90);
-    updateHUD();
   }
+  updateHUD();
 }
 
 function ghostY() {
@@ -160,6 +169,12 @@ function updateHUD() {
   scoreEl.textContent = score.toLocaleString();
   linesEl.textContent = lines;
   levelEl.textContent = level;
+  if (comboMultiplier > 1) {
+    comboEl.textContent = `COMBO x${comboMultiplier}`;
+    comboEl.classList.remove('hidden');
+  } else {
+    comboEl.classList.add('hidden');
+  }
 }
 
 function applyTheme(theme) {
@@ -284,6 +299,8 @@ function init() {
   score = 0;
   lines = 0;
   level = 1;
+  comboCount = 0;
+  comboMultiplier = 1;
   paused = false;
   gameOver = false;
   dropInterval = 1000;
