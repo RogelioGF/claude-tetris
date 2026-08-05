@@ -40,6 +40,93 @@
   --btn-bg-hover: #5678f0;
 }
 
+/* ===== UNIT 3: SKINS ===== */
+
+html[data-skin="neon"] {
+  --bg: #05010f;
+  --text: #e0faff;
+  --title-color: #0ff0fc;
+  --board-bg: #0a0016;
+  --board-border: #2a0a3e;
+  --board-shadow: rgba(0, 255, 255, 0.35);
+  --grid-line: #1a0a2e;
+  --label-color: #ff2bd6;
+  --value-color: #0ff0fc;
+  --control-text: #9d7bff;
+  --kbd-bg: #150a2e;
+  --kbd-border: #ff2bd6;
+  --kbd-text: #0ff0fc;
+  --overlay-bg: rgba(5, 1, 15, 0.85);
+  --overlay-title: #ff2b4d;
+  --btn-bg: #ff2bd6;
+  --btn-text: #05010f;
+  --btn-bg-hover: #ff6be0;
+}
+
+html[data-skin="pastel"] {
+  --bg: #fdf6f0;
+  --text: #5a4a55;
+  --title-color: #d18ec2;
+  --board-bg: #ffffff;
+  --board-border: #f0d9e8;
+  --board-shadow: rgba(200, 180, 210, 0.25);
+  --grid-line: #f3e6ee;
+  --label-color: #b79cc7;
+  --value-color: #d18ec2;
+  --control-text: #a893a0;
+  --kbd-bg: #f7ecf3;
+  --kbd-border: #eccfe3;
+  --kbd-text: #9b7fa8;
+  --overlay-bg: rgba(255, 250, 248, 0.85);
+  --overlay-title: #e58a9a;
+  --btn-bg: #d18ec2;
+  --btn-text: #ffffff;
+  --btn-bg-hover: #dea6d1;
+}
+
+html[data-skin="pixel"] {
+  --bg: #0d1b0d;
+  --text: #c8f7c5;
+  --title-color: #7cfc00;
+  --board-bg: #10240f;
+  --board-border: #2e5c2e;
+  --board-shadow: rgba(0, 0, 0, 0.6);
+  --grid-line: #1c3a1c;
+  --label-color: #4caf50;
+  --value-color: #7cfc00;
+  --control-text: #6b9b6b;
+  --kbd-bg: #1c3a1c;
+  --kbd-border: #4caf50;
+  --kbd-text: #a3d9a3;
+  --overlay-bg: rgba(10, 20, 10, 0.85);
+  --overlay-title: #ff5555;
+  --btn-bg: #7cfc00;
+  --btn-text: #0d1b0d;
+  --btn-bg-hover: #a3ff4d;
+}
+
+[data-skin="pixel"] #board {
+  image-rendering: pixelated;
+}
+
+[data-skin="neon"] #board {
+  box-shadow: 0 0 60px rgba(0, 255, 255, 0.2);
+}
+
+.sk-select {
+  background: var(--kbd-bg);
+  color: var(--kbd-text);
+  border: 1px solid var(--kbd-border);
+  border-radius: 3px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+/* ===== END UNIT 3 ===== */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
