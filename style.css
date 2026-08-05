@@ -245,3 +245,113 @@ kbd {
 #restart-btn:hover {
   background: var(--btn-bg-hover);
 }
+
+/* ===== UNIT 1: PAUSE MENU ===== */
+#pause-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(4px);
+}
+
+.pause-menu-box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 240px;
+  padding: 24px 28px;
+  background: var(--board-bg);
+  border: 1px solid var(--board-border);
+  border-radius: 8px;
+  box-shadow: 0 0 40px var(--board-shadow);
+}
+
+.pause-menu-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--overlay-title);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+#pause-menu button {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+
+#pause-menu button:hover {
+  background: var(--btn-bg-hover);
+}
+
+#pause-controls {
+  list-style: none;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+#pause-controls li {
+  font-size: 12px;
+  color: var(--control-text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#pause-controls kbd,
+.pause-level-wrap kbd {
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--kbd-text);
+}
+
+.pause-level-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pause-level-wrap label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--label-color);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pause-level-wrap select,
+.level-select {
+  background: var(--kbd-bg);
+  color: var(--text);
+  border: 1px solid var(--kbd-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.pause-level-note {
+  font-size: 11px;
+  color: var(--label-color);
+}
+/* ===== END UNIT 1 ===== */
