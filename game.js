@@ -473,7 +473,7 @@ function draw() {
 }
 
 function drawNext() {
-  const NB = 30;
+  const NB = nextCanvas.width / 4;
   nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
   const shape = next.shape;
   const offX = Math.floor((4 - shape[0].length) / 2);

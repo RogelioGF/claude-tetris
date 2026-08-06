@@ -69,7 +69,7 @@ body {
 .game-container {
   display: flex;
   gap: 20px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .board-column {
@@ -102,10 +102,11 @@ body {
 
 /* ---- Panel lateral ---- */
 .panel {
-  width: 160px;
+  width: 180px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  justify-content: space-between;
   padding-top: 4px;
 }
 
@@ -113,6 +114,26 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 6px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stats-row .value {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .label {
@@ -150,6 +171,7 @@ body {
 
 #next-canvas {
   display: block;
+  width: 100%;
   border: 1px solid var(--board-border);
   background: var(--board-bg);
   border-radius: 4px;
