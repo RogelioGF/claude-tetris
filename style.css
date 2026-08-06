@@ -17,6 +17,8 @@
   --btn-bg: #7aa2f7;
   --btn-text: #0f0f17;
   --btn-bg-hover: #9bbdff;
+  --overlay-box-bg: rgba(18, 18, 30, 0.94);
+  --overlay-box-border: #343450;
 }
 
 [data-theme="light"] {
@@ -38,6 +40,8 @@
   --btn-bg: #3b5bdb;
   --btn-text: #ffffff;
   --btn-bg-hover: #5678f0;
+  --overlay-box-bg: rgba(255, 255, 255, 0.96);
+  --overlay-box-border: #c7c7d6;
 }
 
 *, *::before, *::after {
@@ -81,6 +85,11 @@ body {
   letter-spacing: 8px;
   color: var(--title-color);
   text-align: center;
+}
+
+.board-stage {
+  position: relative;
+  display: block;
 }
 
 #board {
@@ -232,6 +241,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 14px;
   background: var(--overlay-bg);
   backdrop-filter: blur(4px);
   border-radius: 4px;
@@ -242,11 +252,26 @@ kbd {
 }
 
 .overlay-box {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
+  padding: 20px 16px;
+  border-radius: 10px;
+  background: var(--overlay-box-bg);
+  border: 1px solid var(--overlay-box-border);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  animation: overlay-pop 0.18s ease-out;
+}
+
+@keyframes overlay-pop {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 #overlay-title {
@@ -262,29 +287,7 @@ kbd {
   color: var(--value-color);
 }
 
-#restart-btn {
-  margin-top: 8px;
-  background: var(--btn-bg);
-  color: var(--btn-text);
-  border: none;
-  border-radius: 6px;
-  padding: 10px 28px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.15s;
-}
-
-#restart-btn:hover {
-  background: var(--btn-bg-hover);
-}
-
 /* ---- Menú de pausa ---- */
-.pause-box {
-  min-width: 220px;
-}
-
 .pause-title {
   font-size: 28px;
   font-weight: 800;
@@ -362,7 +365,7 @@ kbd {
 #start-title {
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: 6px;
+  letter-spacing: 4px;
   color: var(--title-color);
 }
 
@@ -386,7 +389,7 @@ kbd {
 
 /* ---- Panel de records ---- */
 .records-panel {
-  width: 220px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
