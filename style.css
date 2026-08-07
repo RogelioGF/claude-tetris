@@ -58,12 +58,18 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;
+  padding: 8px;
   user-select: none;
   transition: background 0.2s, color 0.2s;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .wrapper {
   position: relative;
+  max-width: 100%;
 }
 
 .game-container {
@@ -114,6 +120,19 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* En escritorio #settings-panel no pinta como caja: sus dos panel-section
+   hijas actúan como hijas directas de .panel, igual que antes de envolverlas. */
+#settings-panel {
+  display: contents;
+}
+
+.settings-close-btn,
+#settings-toggle,
+#settings-backdrop,
+#touch-controls {
+  display: none;
 }
 
 .stats-row {
@@ -532,4 +551,228 @@ kbd {
 
 #save-record-btn:hover {
   background: var(--btn-bg-hover);
+}
+
+/* ---- Controles táctiles (visibles en móvil/tablet o con puntero grueso) ---- */
+@media (max-width: 900px), (pointer: coarse) {
+  #touch-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .touch-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .touch-row-top {
+    justify-content: space-between;
+  }
+
+  .touch-row-bottom {
+    justify-content: stretch;
+  }
+
+  .touch-btn {
+    flex: 1;
+    min-height: 52px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--kbd-bg);
+    color: var(--text);
+    border: 1px solid var(--kbd-border);
+    border-radius: 10px;
+    font-size: 22px;
+    line-height: 1;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .touch-btn:active {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+  }
+
+  .touch-btn-pause,
+  .touch-btn-rotate {
+    flex: 0 0 auto;
+    width: 64px;
+  }
+}
+
+/* ---- Layout de móvil y tablet en vertical ---- */
+@media (max-width: 900px) {
+  body {
+    padding: 8px;
+    align-items: stretch;
+  }
+
+  .wrapper {
+    width: 100%;
+  }
+
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .board-column {
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .game-title {
+    display: none;
+  }
+
+  /* ---- Panel lateral -> barra superior ---- */
+  .panel {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    width: 100%;
+    max-width: 480px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--board-bg);
+    border: 1px solid var(--board-border);
+    border-radius: 8px;
+  }
+
+  .panel .stats-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .panel .stats-row .value {
+    font-size: 13px;
+  }
+
+  .panel .next-section {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .panel .next-section .label {
+    display: none;
+  }
+
+  .panel #next-canvas {
+    width: 40px;
+  }
+
+  .panel .controls {
+    display: none;
+  }
+
+  .combo-value {
+    position: fixed;
+    top: 60px;
+    right: 12px;
+    z-index: 45;
+  }
+
+  #settings-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    order: 2;
+    width: 40px;
+    height: 40px;
+    background: var(--kbd-bg);
+    color: var(--text);
+    border: 1px solid var(--kbd-border);
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  /* ---- Hoja de ajustes (tema + skin) ---- */
+  #settings-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 70;
+  }
+
+  #settings-backdrop.open {
+    display: block;
+  }
+
+  #settings-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    background: var(--overlay-box-bg);
+    border: 1px solid var(--overlay-box-border);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.45);
+    transform: translateY(100%);
+    transition: transform 0.2s ease-out;
+    z-index: 71;
+  }
+
+  #settings-panel.open {
+    transform: translateY(0);
+  }
+
+  .settings-close-btn {
+    display: block;
+    width: 100%;
+  }
+
+  /* ---- Tablero ---- */
+  .board-stage {
+    --stage-h: min(calc(100dvh - 230px), calc((100vw - 32px) * 2));
+    height: var(--stage-h);
+    width: calc(var(--stage-h) / 2);
+    max-width: 100%;
+  }
+
+  #board {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- Overlays a pantalla completa ---- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    border-radius: 0;
+    padding: 16px;
+    z-index: 50;
+  }
+
+  .overlay-box {
+    max-width: 340px;
+    max-height: 85vh;
+  }
 }

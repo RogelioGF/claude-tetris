@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <title>Tetris</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -11,7 +11,7 @@
     <div class="game-container">
       <div class="board-column">
         <h1 class="game-title">TETRIS</h1>
-        <div class="board-stage">
+        <div class="board-stage" id="board-stage">
           <canvas id="board" width="300" height="600"></canvas>
 
           <div id="start-screen" class="overlay">
@@ -82,21 +82,40 @@
             </div>
           </div>
         </div>
+
+        <div id="touch-controls">
+          <div class="touch-row touch-row-top">
+            <button type="button" class="touch-btn touch-btn-pause" data-action="pause" aria-label="Pausa">⏸</button>
+            <button type="button" class="touch-btn touch-btn-rotate" data-action="rotate" aria-label="Rotar">⟲</button>
+          </div>
+          <div class="touch-row touch-row-bottom">
+            <button type="button" class="touch-btn" data-action="left" aria-label="Izquierda">←</button>
+            <button type="button" class="touch-btn" data-action="down" aria-label="Bajar">↓</button>
+            <button type="button" class="touch-btn" data-action="right" aria-label="Derecha">→</button>
+            <button type="button" class="touch-btn touch-btn-drop" data-action="drop" aria-label="Caída dura">⇓</button>
+          </div>
+        </div>
       </div>
 
       <aside class="panel">
-        <div class="panel-section">
-          <button id="theme-toggle" type="button"></button>
-        </div>
-        <div class="panel-section">
-          <span class="label">SKIN</span>
-          <div class="skin-buttons" role="group" aria-label="Tema visual">
-            <button type="button" class="skin-btn" data-skin="retro">Retro</button>
-            <button type="button" class="skin-btn" data-skin="neon">Neon</button>
-            <button type="button" class="skin-btn" data-skin="pastel">Pastel</button>
-            <button type="button" class="skin-btn" data-skin="pixel">Pixel Art</button>
+        <div id="settings-panel">
+          <div class="panel-section">
+            <button id="theme-toggle" type="button"></button>
           </div>
+          <div class="panel-section">
+            <span class="label">SKIN</span>
+            <div class="skin-buttons" role="group" aria-label="Tema visual">
+              <button type="button" class="skin-btn" data-skin="retro">Retro</button>
+              <button type="button" class="skin-btn" data-skin="neon">Neon</button>
+              <button type="button" class="skin-btn" data-skin="pastel">Pastel</button>
+              <button type="button" class="skin-btn" data-skin="pixel">Pixel Art</button>
+            </div>
+          </div>
+          <button id="settings-close" type="button" class="btn-secondary settings-close-btn">Cerrar</button>
         </div>
+        <div id="settings-backdrop"></div>
+        <button id="settings-toggle" type="button" aria-label="Ajustes" aria-expanded="false">⚙</button>
+
         <div class="panel-section stats-row">
           <div class="stat">
             <span class="label">SCORE</span>
@@ -114,7 +133,7 @@
 
         <span class="value combo-value hidden" id="combo"></span>
 
-        <div class="panel-section">
+        <div class="panel-section next-section">
           <span class="label">NEXT</span>
           <canvas id="next-canvas" width="180" height="180"></canvas>
         </div>

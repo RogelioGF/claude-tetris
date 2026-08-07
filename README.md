@@ -86,6 +86,10 @@ Después abre `http://localhost:8000` en el navegador.
 | `Espacio` | Hard drop (caída instantánea)     |
 | `P` / `Esc` | Pausar / reanudar                |
 
+En móvil y tablet (o cualquier pantalla con puntero táctil) aparece además una fila de
+botones en pantalla bajo el tablero con las mismas acciones (mover, rotar, soft drop, hard
+drop, pausa); mantener pulsado `←`/`→`/`↓` repite la acción automáticamente.
+
 ---
 
 ## Cómo funciona
@@ -177,7 +181,11 @@ Algunos parámetros fáciles de tunear en `game.js`:
 | `LINE_SCORES`  | Puntos por 1, 2, 3 o 4 líneas eliminadas | `[0,100,300,500,800]` |
 | `dropInterval` | Velocidad inicial de caída en ms         | `1000`                |
 
-> Si cambias `COLS`, `ROWS` o `BLOCK`, recuerda ajustar también `width` y `height` del `<canvas id="board">` en `index.html` para que coincida (`COLS × BLOCK` × `ROWS × BLOCK`).
+> Si cambias `COLS`, `ROWS` o `BLOCK`, el tamaño visible del tablero ya no depende de los
+> atributos `width`/`height` de `<canvas id="board">` (que solo sirven de tamaño de reserva
+> antes de que cargue el script): `resizeBoardCanvas()` en `game.js` recalcula el búfer del
+> canvas y aplica una transformación de escala según el ancho disponible en `#board-stage`,
+> así que el juego se sigue dibujando siempre en el espacio lógico `COLS × BLOCK` / `ROWS × BLOCK`.
 
 ---
 

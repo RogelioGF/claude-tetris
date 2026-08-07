@@ -153,6 +153,13 @@ const overlayBestComboEl = document.getElementById('overlay-best-combo');
 const overlayMaxLinesEl = document.getElementById('overlay-max-lines');
 const resetRecordsBtnOverlay = document.getElementById('reset-records-btn-overlay');
 
+const boardStage = document.getElementById('board-stage');
+const touchControls = document.getElementById('touch-controls');
+const settingsPanel = document.getElementById('settings-panel');
+const settingsToggleBtn = document.getElementById('settings-toggle');
+const settingsCloseBtn = document.getElementById('settings-close');
+const settingsBackdrop = document.getElementById('settings-backdrop');
+
 const THEME_KEY = 'tetris-theme';
 const MAX_START_LEVEL = 10;
 const SKIN_KEY = 'tetris-skin';
@@ -446,11 +453,11 @@ function drawGrid() {
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, COLS * BLOCK, ROWS * BLOCK);
   const bg = SKINS[currentSkin].background;
   if (bg) {
     ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, COLS * BLOCK, ROWS * BLOCK);
   }
   drawGrid();
 
@@ -481,6 +488,29 @@ function drawNext() {
   for (let r = 0; r < shape.length; r++)
     for (let c = 0; c < shape[r].length; c++)
       drawBlock(nextCtx, offX + c, offY + r, shape[r][c], NB);
+}
+
+function resizeBoardCanvas() {
+  const cssW = boardStage.clientWidth;
+  if (!cssW) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cssH = cssW * (ROWS / COLS);
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  canvas.width = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  const scale = (cssW * dpr) / (COLS * BLOCK);
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  if (board) draw();
+}
+
+let boardResizeRaf = null;
+function scheduleBoardResize() {
+  if (boardResizeRaf) cancelAnimationFrame(boardResizeRaf);
+  boardResizeRaf = requestAnimationFrame(() => {
+    boardResizeRaf = null;
+    resizeBoardCanvas();
+  });
 }
 
 function endGame() {
@@ -604,31 +634,96 @@ function startGame() {
   init();
 }
 
-document.addEventListener('keydown', e => {
+function moveLeft() {
+  if (!collide(current.shape, current.x - 1, current.y)) current.x--;
+}
+
+function moveRight() {
+  if (!collide(current.shape, current.x + 1, current.y)) current.x++;
+}
+
+const ACTIONS = {
+  left: moveLeft,
+  right: moveRight,
+  down: softDrop,
+  rotate: tryRotate,
+  drop: hardDrop,
+};
+
+function doAction(action) {
   if (!gameStarted) return;
-  if (e.code === 'KeyP' || e.code === 'Escape') { togglePause(); return; }
+  if (action === 'pause') { togglePause(); return; }
   if (paused || gameOver) return;
-  switch (e.code) {
-    case 'ArrowLeft':
-      if (!collide(current.shape, current.x - 1, current.y)) current.x--;
-      break;
-    case 'ArrowRight':
-      if (!collide(current.shape, current.x + 1, current.y)) current.x++;
-      break;
-    case 'ArrowDown':
-      softDrop();
-      break;
-    case 'ArrowUp':
-    case 'KeyX':
-      tryRotate();
-      break;
-    case 'Space':
-      e.preventDefault();
-      hardDrop();
-      break;
-  }
+  ACTIONS[action]?.();
   updateHUD();
+}
+
+const KEY_ACTIONS = {
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  ArrowDown: 'down',
+  ArrowUp: 'rotate',
+  KeyX: 'rotate',
+  Space: 'drop',
+  KeyP: 'pause',
+  Escape: 'pause',
+};
+
+document.addEventListener('keydown', e => {
+  const action = KEY_ACTIONS[e.code];
+  if (!action) return;
+  if (action === 'drop') e.preventDefault();
+  doAction(action);
 });
+
+const REPEATABLE_ACTIONS = new Set(['left', 'right', 'down']);
+const TOUCH_REPEAT_DELAY = 170;
+const TOUCH_REPEAT_INTERVAL = 60;
+let touchRepeatTimeout = null;
+let touchRepeatInterval = null;
+
+function stopTouchRepeat() {
+  clearTimeout(touchRepeatTimeout);
+  clearInterval(touchRepeatInterval);
+  touchRepeatTimeout = null;
+  touchRepeatInterval = null;
+}
+
+function startTouchAction(action) {
+  doAction(action);
+  if (!REPEATABLE_ACTIONS.has(action)) return;
+  touchRepeatTimeout = setTimeout(() => {
+    touchRepeatInterval = setInterval(() => doAction(action), TOUCH_REPEAT_INTERVAL);
+  }, TOUCH_REPEAT_DELAY);
+}
+
+touchControls.querySelectorAll('.touch-btn').forEach(btn => {
+  const action = btn.dataset.action;
+  btn.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    startTouchAction(action);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(evt => btn.addEventListener(evt, stopTouchRepeat));
+});
+
+function openSettings() {
+  settingsPanel.classList.add('open');
+  settingsBackdrop.classList.add('open');
+  settingsToggleBtn.setAttribute('aria-expanded', 'true');
+}
+
+function closeSettings() {
+  settingsPanel.classList.remove('open');
+  settingsBackdrop.classList.remove('open');
+  settingsToggleBtn.setAttribute('aria-expanded', 'false');
+}
+
+settingsToggleBtn.addEventListener('click', () => {
+  if (settingsPanel.classList.contains('open')) closeSettings();
+  else openSettings();
+});
+settingsCloseBtn.addEventListener('click', closeSettings);
+settingsBackdrop.addEventListener('click', closeSettings);
 
 restartBtn.addEventListener('click', init);
 themeToggleBtn.addEventListener('click', toggleTheme);
@@ -655,7 +750,11 @@ backToMenuBtn.addEventListener('click', () => {
 startLevelSelect.addEventListener('change', () => setStartLevel(startLevelSelect.value));
 startLevelSelectHome.addEventListener('change', () => setStartLevel(startLevelSelectHome.value));
 
+window.addEventListener('resize', scheduleBoardResize);
+window.addEventListener('orientationchange', scheduleBoardResize);
+
 populateStartLevelSelect();
 initTheme();
 initSkin();
 refreshRecordsUI(null);
+resizeBoardCanvas();
